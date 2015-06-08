@@ -45,7 +45,7 @@ DOC
 #Set up syslog to write to local0
 openlog("speedtest", "nofatal, pid", "local0");
 #set to LOG_ERROR to disable debugging
-setlogmask(LOG_DEBUG);
+setlogmask(LOG_MASK(LOG_DEBUG));
  
 sub new($$$)
 {
@@ -61,6 +61,7 @@ sub new($$$)
         my $return = `$call 2>&1`;
         if ($return =~ /([0-9\.]+)/){
             print "### parsing $self->{properties}{binary} output... OK (version $1)\n";
+            syslog("debug", "Init: version $1");
         } else {
             croak "ERROR: output of '$call' does not return a meaningful version number. Is speedtest-cli installed?\n";
         }
