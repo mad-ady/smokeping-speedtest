@@ -45,7 +45,7 @@ DOC
 #Set up syslog to write to local0
 openlog("speedtest", "nofatal, pid", "local0");
 #set to LOG_ERROR to disable debugging
-setlogmask(LOG_MASK(LOG_DEBUG));
+setlogmask(LOG_MASK(LOG_ERROR));
  
 sub new($$$)
 {
