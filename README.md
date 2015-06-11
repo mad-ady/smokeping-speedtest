@@ -17,14 +17,14 @@ Parameters:
 Logging:
 You can get logs of what goes on inside the plugin either by running smokeping with --debug, or by changing this line:
 ```
-  #set to LOG_ERROR to disable debugging
-  setlogmask(LOG_MASK(LOG_ERROR));
+  #set to LOG_ERR to disable debugging, LOG_DEBUG to enable it
+  setlogmask(LOG_MASK(LOG_ERR));
 ```
   
   to
   
 ```
-  #set to LOG_ERROR to disable debugging
+  #set to LOG_ERR to disable debugging, LOG_DEBUG to enable it
   setlogmask(LOG_MASK(LOG_DEBUG));
 ```
   
