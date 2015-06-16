@@ -14,6 +14,12 @@ Parameters:
 * server => The server id you want to test against (optional). If unspecified, speedtest.net will select the closest server to you. The value has to be an id reported by the command speedtest-cli --list
 * measurement => What output do you want graphed? Supported values are: ping, download, upload
 
+
+Installation:
+
+Copy The speedtest.pm should be copied into your smokeping installation directory - for instance here: /opt/smokeping/lib/Smokeping/probes/
+
+
 Logging:
 You can get logs of what goes on inside the plugin either by running smokeping with --debug, or by changing this line:
 ```
@@ -37,6 +43,9 @@ in your syslog configuration.
 
 Example probe configuration (poll every hour):
 ```
+
+### Add this to your Probes file in conf.d folder
+
 + speedtest
 binary = /usr/local/bin/speedtest-cli
 timeout = 300
@@ -49,6 +58,8 @@ measurement = download
 
 ++ speedtest-upload
 measurement = upload
+
+### Add these to your Targets file.
 
 ++++ download_from_NextGen_Communications
 menu = download_from_NextGen_Communications
