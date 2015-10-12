@@ -85,4 +85,5 @@ Bugs:
 +overview
 max_rtt = 1000000000
 ```
+* In order for the RRD to actually store data larger than 180, you also need to apply this patch (or to use the most recent version of smokeping): https://github.com/oetiker/SmokePing/commit/60419834f224a0735094fd4ad0aac8eac3b15289
 
