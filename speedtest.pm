@@ -96,6 +96,9 @@ sub targetvars {
         measurement => { _doc => "What output do you want graphed? Supported values are: ping, download, upload",
                     _example => "download",
         },
+	extraargs => { _doc => "Append extra arguments to the speedtest-cli comand line",
+                    _example => "--secure",
+        },
 	});
 }
 
@@ -120,7 +123,8 @@ sub pingone ($){
 
     my $server = $target->{vars}{server} || undef; #if server is not provided, use the default one recommended by speedtest.
     my $measurement = $target->{vars}{measurement} || "download"; #record download speeds if nothing is returned
-    my $query = "$self->{properties}{binary} ".((defined($server))?"--server $server":"")." --simple 2>&1";
+    my $extra = $target->{vars}{extraargs} || ""; #append extra arguments if neded
+    my $query = "$self->{properties}{binary} ".((defined($server))?"--server $server":"")." --simple $extra 2>&1";
 
     my @times;
 
