@@ -13,6 +13,7 @@ Parameters:
 * binary => The location of your speedtest-cli binary.
 * server => The server id you want to test against (optional). If unspecified, speedtest.net will select the closest server to you. The value has to be an id reported by the command speedtest-cli --list
 * measurement => What output do you want graphed? Supported values are: ping, download, upload
+* extraargs => Extra arguments to send to speedtest-cli
 
 
 Installation:
