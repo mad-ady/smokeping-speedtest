@@ -9,12 +9,15 @@ The Probe asks for the given resource one time, ignoring the pings config variab
 
 You can ask for a specific server (via the server parameter) and record a specific output (via the measurement parameter).
 
+Note that you may want to change speedtest's forks parameter because basically: by default smokeping runs up to 5 speedtest probes at once, skewing overall results and possibly running into resource trouble on low spec devices. Setting forks = 1 will alleviate these issues.
+
 Parameters:
 * binary => The location of your speedtest-cli binary.
 * server => The server id you want to test against (optional). If unspecified, speedtest.net will select the closest server to you. The value has to be an id reported by the command speedtest-cli --list
 * measurement => What output do you want graphed? Supported values are: ping, download, upload
 * extraargs => Extra arguments to send to speedtest-cli
 
+You can use extraargs with --no-download or --no-upload if you want to skip some test direction (https://github.com/sivel/speedtest-cli/commit/3feb38d9d47d41e6b0679e3722dedb4511c437f6).
 
 Installation:
 
