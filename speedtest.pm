@@ -124,7 +124,7 @@ sub pingone ($){
     my $server = $target->{vars}{server} || undef; #if server is not provided, use the default one recommended by speedtest.
     my $measurement = $target->{vars}{measurement} || "download"; #record download speeds if nothing is returned
     my $extra = $target->{vars}{extraargs} || ""; #append extra arguments if neded
-    my $query = "$self->{properties}{binary} ".((defined($server))?"--server $server":"")." --simple $extra 2>&1";
+    my $query = "$self->{properties}{binary} ".((defined($server))?"--server $server":"")." ".(($measurement -eq "download")?"--no-upload":"--no-download")." --simple $extra 2>&1";
 
     my @times;
 
