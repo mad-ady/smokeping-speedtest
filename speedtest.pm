@@ -61,7 +61,7 @@ sub new($$$)
         my $return = `$call 2>&1`;
         if ($return =~ /([0-9\.]+)/){
             print "### parsing $self->{properties}{binary} output... OK (version $1)\n";
-            syslog("debug", "Init: version $1");
+            syslog("debug", "[Speedtest] Init: version $1");
         } else {
             croak "ERROR: output of '$call' does not return a meaningful version number. Is speedtest-cli installed?\n";
         }
@@ -129,12 +129,12 @@ sub pingone ($){
     my @times;
 
     $self->do_debug("query=$query\n");
-    syslog("debug", "query=$query");
+    syslog("debug", "[Speedtest] query=$query");
 #    for (my $run = 0; $run < $self->pings($target); $run++) {
 	my $pid = open3($inh,$outh,$errh, $query);
 	while (<$outh>) {
         $self->do_debug("output: ".$_);
-        syslog("debug", "output: ".$_);
+        syslog("debug", "[Speedtest] output: ".$_);
 	    if (/$measurement/i) {
             #sample output:
             #Ping: 2.826 ms
@@ -153,7 +153,7 @@ sub pingone ($){
             
             my $normalizedvalue = $value * $factor;
             $self->do_debug("Got value: $value, unit: $unit -> $normalizedvalue\n");
-            syslog("debug","Got value: $value, unit: $unit -> $normalizedvalue\n");
+            syslog("debug","[Speedtest] Got value: $value, unit: $unit -> $normalizedvalue\n");
             
             push @times, $normalizedvalue;
             last;
@@ -174,7 +174,7 @@ sub pingone ($){
     @times = map {sprintf "%.10e", $_ } sort {$a <=> $b} grep {$_ ne "-"} @times;
 
     $self->do_debug("time=@times\n");
-    syslog("debug", "time=@times");
+    syslog("debug", "[Speedtest] time=@times");
     return @times;
 }
 1;
