@@ -3,7 +3,7 @@ Smokeping::probes::speedtest
 
 Integrates speedtest-cli (https://github.com/sivel/speedtest-cli) as a probe into smokeping. The variable "binary" must
 point to your copy of the speedtest-cli program. If it is not installed on
-your system yet, you should install the latest version from https://github.com/sivel/speedtest-cli.
+your system yet, you should install the latest version from https://github.com/sivel/speedtest-cli. Note that you need at least version >=2.0.2 for speedtest-cli.
 
 The Probe asks for the given resource one time, ignoring the pings config variable (because pings can't be lower than 3).
 
