@@ -1,14 +1,14 @@
-package Smokeping::probes::speedtest;
+package Smokeping::probes::speedtestcli;
 
 =head1 301 Moved Permanently
 
 This is a Smokeping probe module. Please use the command 
 
-C<smokeping -man Smokeping::probes::speedtest>
+C<smokeping -man Smokeping::probes::speedtestcli>
 
 to view the documentation or the command
 
-C<smokeping -makepod Smokeping::probes::speedtest>
+C<smokeping -makepod Smokeping::probes::speedtestcli>
 
 to generate the POD document.
 
@@ -24,7 +24,7 @@ use Sys::Syslog qw(:standard :macros);;
 sub pod_hash {
 	return {
 		name => <<DOC,
-Smokeping::probes::speedtest - Execute tests via Speedtest.net
+Smokeping::probes::speedtestcli - Execute tests via Speedtest.net
 DOC
 		description => <<DOC,
 Integrates L<speedtest-cli|https://github.com/sivel/speedtest-cli> as a probe into smokeping. The variable B<binary> must
@@ -43,7 +43,7 @@ DOC
 }
 
 #Set up syslog to write to local0
-openlog("speedtest", "nofatal, pid", "local0");
+openlog("speedtestcli", "nofatal, pid", "local0");
 #set to LOG_ERR to disable debugging, LOG_DEBUG to enable debugging
 setlogmask(LOG_MASK(LOG_ERR));
  
@@ -59,12 +59,12 @@ sub new($$$)
         #check for dependencies
         my $call = "$self->{properties}{binary} --version";
         my $return = `$call 2>&1`;
-        if ($return =~ /([0-9\.]+)/){
-            print "### parsing $self->{properties}{binary} output... OK (version $1)\n";
-            syslog("debug", "[Speedtest] Init: version $1");
-        } else {
-            croak "ERROR: output of '$call' does not return a meaningful version number. Is speedtest-cli installed?\n";
-        }
+        #if ($return =~ /([0-9\.]+)/){
+        #    print "### parsing $self->{properties}{binary} output... OK (version $1)\n";
+        #    syslog("debug", "[Speedtest] Init: version $1");
+        #} else {
+        #    croak "ERROR: output of '$call' does not return a meaningful version number. Is speedtest-cli installed?\n";
+        #}
     };
 
     return $self;
@@ -124,7 +124,7 @@ sub pingone ($){
     my $server = $target->{vars}{server} || undef; #if server is not provided, use the default one recommended by speedtest.
     my $measurement = $target->{vars}{measurement} || "download"; #record download speeds if nothing is returned
     my $extra = $target->{vars}{extraargs} || ""; #append extra arguments if neded
-    my $query = "$self->{properties}{binary} ".((defined($server))?"--server $server":"")." ".(($measurement eq "download")?"--no-upload":"--no-download")." --simple $extra 2>&1";
+    my $query = "$self->{properties}{binary} ".((defined($server))?"--server-id $server":"")." -f json --accept-license --accept-gdpr 2>&1 | tail -1";
 
     my @times;
 
@@ -135,34 +135,20 @@ sub pingone ($){
 	while (<$outh>) {
         $self->do_debug("output: ".$_);
         syslog("debug", "[Speedtest] output: ".$_);
-	    if (/$measurement/i) {
-            #sample output:
-            #Ping: 2.826 ms
-            #Download: 898.13 Mbit/s
-            #Upload: 420.01 Mbit/s
-            
-            my ($value, $unit) = /([0-9\.]+) ([A-Za-z\/]+)/;
-            #we're not always measuring seconds, but ProbeUnit() should provide the correct unit for the Y Axis
-            
-            #normalize the units to be in the same base.
-            my $factor = 1; 
-            $factor = 0.001 if($unit eq 'ms');
-            $factor = 1_000 if($unit eq 'Kbit/s' || $unit eq 'kbit/s');
-            $factor = 1_000_000 if($unit eq 'Mbit/s' || $unit eq 'mbit/s');
-            $factor = 1_000_000_000 if($unit eq 'Gbit/s' || $unit eq 'gbit/s');
-            
-            my $normalizedvalue = $value * $factor;
-            $self->do_debug("Got value: $value, unit: $unit -> $normalizedvalue\n");
-            syslog("debug","[Speedtest] Got value: $value, unit: $unit -> $normalizedvalue\n");
-            
-            push @times, $normalizedvalue;
-            last;
-	    }
-	}
-	waitpid $pid,0;
-	close $errh;
-	close $inh;
-	close $outh;
+        my ($value) = /"$measurement":{"bandwidth":([0-9]*)/;
+        my $normalizedvalue = $value * 8;
+        $self->do_debug("Got value: $value, unit: 8 -> $normalizedvalue\n");
+        syslog("debug","[Speedtest] Got value: $value, unit: 8 -> $normalizedvalue\n");
+
+        push @times, $normalizedvalue;
+        last;
+      #if (/$measurement/i) {
+
+  	}
+  	waitpid $pid,0;
+  	close $errh;
+  	close $inh;
+  	close $outh;
 #    }
     #we run only one test (in order not to get banned too soon), so we ignore pings and have to return the correct number of values. Uncomment the above for loop if you want the actual testing to be done $ping times.
     my $value = $times[0];
