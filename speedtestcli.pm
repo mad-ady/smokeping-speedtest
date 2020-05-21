@@ -58,8 +58,8 @@ sub new($$$)
         
         #check for dependencies
         my $call = "$self->{properties}{binary} --version";
-        my @return = `$call 2>&1`;
-        if ($return[0] =~ /([0-9\.]+)/){
+        my $return = `$call 2>&1`;
+        if ($return =~ / ([0-9\.]+) /){
             print "### parsing $self->{properties}{binary} output... OK (version $1)\n";
             syslog("debug", "[Speedtestcli] Init: version $1");
         } else {
