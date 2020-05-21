@@ -24,19 +24,19 @@ use Sys::Syslog qw(:standard :macros);;
 sub pod_hash {
 	return {
 		name => <<DOC,
-Smokeping::probes::speedtestcli - Execute tests via Speedtest.net
+Smokeping::probes::speedtestcli - Execute tests via Speedtest.net (official ookla speedtest client)
 DOC
 		description => <<DOC,
-Integrates L<speedtest-cli|https://github.com/sivel/speedtest-cli> as a probe into smokeping. The variable B<binary> must
-point to your copy of the speedtest-cli program. If it is not installed on
-your system yet, you should install the latest version from L<https://github.com/sivel/speedtest-cli>.
+Integrates L<speedtest|https://www.speedtest.net/apps/cli> as a probe into smokeping. The variable B<binary> must
+point to your copy of the speedtest program. If it is not installed on
+your system yet, you should install the latest version from L<https://www.speedtest.net/apps/cli>.
 
 The Probe asks for the given resource one time, ignoring the pings config variable (because pings can't be lower than 3).
 
-You can ask for a specific server (via the server parameter) and record a specific output (via the measurement parameter).
-
+You can ask for a specific server (via the server parameter) 
 DOC
 		authors => <<'DOC',
+ Florian Jensen <https://github.com/flosoft>
  Adrian Popa <mad_ady@yahoo.com>
 DOC
 	};
@@ -58,13 +58,13 @@ sub new($$$)
         
         #check for dependencies
         my $call = "$self->{properties}{binary} --version";
-        my $return = `$call 2>&1`;
-        #if ($return =~ /([0-9\.]+)/){
-        #    print "### parsing $self->{properties}{binary} output... OK (version $1)\n";
-        #    syslog("debug", "[Speedtest] Init: version $1");
-        #} else {
-        #    croak "ERROR: output of '$call' does not return a meaningful version number. Is speedtest-cli installed?\n";
-        #}
+        my @return = `$call 2>&1`;
+        if ($return[0] =~ /([0-9\.]+)/){
+            print "### parsing $self->{properties}{binary} output... OK (version $1)\n";
+            syslog("debug", "[Speedtestcli] Init: version $1");
+        } else {
+            croak "ERROR: output of '$call' does not return a meaningful version number. Is speedtest installed?\n";
+        }
     };
 
     return $self;
@@ -75,8 +75,8 @@ sub probevars {
 	return $class->_makevars($class->SUPER::probevars, {
 		_mandatory => [ 'binary' ],
 		binary => { 
-			_doc => "The location of your speedtest-cli binary.",
-			_example => '/usr/local/bin/speedtest-cli',
+			_doc => "The location of your speedtest binary.",
+			_example => '/usr/bin/speedtest',
 			_sub => sub { 
 				my $val = shift;
         			return "ERROR: speedtest 'binary' does not point to an executable"
@@ -90,21 +90,21 @@ sub probevars {
 sub targetvars {
 	my $class = shift;
 	return $class->_makevars($class->SUPER::targetvars, {
-		server => { _doc => "The server id you want to test against (optional). If unspecified, speedtest.net will select the closest server to you. The value has to be an id reported by the command speedtest-cli --list",
+		server => { _doc => "The server id you want to test against (optional). If unspecified, speedtest.net will select the closest server to you. The value has to be an id reported by the command speedtest -L",
 			    _example => "1234",
 		},
-        measurement => { _doc => "What output do you want graphed? Supported values are: ping, download, upload",
+        measurement => { _doc => "What output do you want graphed? Supported values are: download, upload",
                     _example => "download",
         },
-	extraargs => { _doc => "Append extra arguments to the speedtest-cli comand line",
-                    _example => "--secure",
+	extraargs => { _doc => "Append extra arguments to the speedtest comand line",
+                    _example => "--foo --bar",
         },
 	});
 }
 
 sub ProbeDesc($){
     my $self = shift;
-    return "speedtest.net download/upload speeds";
+    return "Ookla speedtest.net download/upload speeds";
 }
 
 sub ProbeUnit($){
@@ -129,21 +129,20 @@ sub pingone ($){
     my @times;
 
     $self->do_debug("query=$query\n");
-    syslog("debug", "[Speedtest] query=$query");
+    syslog("debug", "[Speedtestcli] query=$query");
 #    for (my $run = 0; $run < $self->pings($target); $run++) {
 	my $pid = open3($inh,$outh,$errh, $query);
 	while (<$outh>) {
         $self->do_debug("output: ".$_);
-        syslog("debug", "[Speedtest] output: ".$_);
-        my ($value) = /"$measurement":{"bandwidth":([0-9]*)/;
+        syslog("debug", "[Speedtestcli] output: ".$_);
+        my ($value) = /"$measurement":\{"bandwidth":([0-9]+)/;
         my $normalizedvalue = $value * 8;
         $self->do_debug("Got value: $value, unit: 8 -> $normalizedvalue\n");
-        syslog("debug","[Speedtest] Got value: $value, unit: 8 -> $normalizedvalue\n");
+        syslog("debug","[Speedtestcli] Got value: $value, unit: 8 -> $normalizedvalue\n");
 
         push @times, $normalizedvalue;
         last;
-      #if (/$measurement/i) {
-
+      
   	}
   	waitpid $pid,0;
   	close $errh;
@@ -160,7 +159,7 @@ sub pingone ($){
     @times = map {sprintf "%.10e", $_ } sort {$a <=> $b} grep {$_ ne "-"} @times;
 
     $self->do_debug("time=@times\n");
-    syslog("debug", "[Speedtest] time=@times");
+    syslog("debug", "[Speedtestcli] time=@times");
     return @times;
 }
 1;
