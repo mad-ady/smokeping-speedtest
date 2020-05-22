@@ -63,7 +63,7 @@ sub new($$$)
         }
     
         my $call = "$self->{properties}{binary} --version";
-        my $return = `$call 2>&1 | grep Version`;
+        my $return = `$call 2>&1 | head -n 1`;
         if ($return =~ / ([0-9\.]+) /){
             print "### parsing $self->{properties}{binary} output... OK (version $1)\n";
             syslog("debug", "[Speedtestcli] Init: version $1");
