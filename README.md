@@ -40,7 +40,7 @@ Parameters:
 * `measurement` => What output do you want graphed? Supported values are: download, upload
 * `extraargs` => Extra arguments to send to speedtest
 
-##Installation:
+## Installation:
 
 ### Copy
 The speedtest.pm and speedtestcli.pm should be copied into your smokeping installation directory - for instance here: /opt/smokeping/lib/Smokeping/probes/
@@ -135,7 +135,7 @@ measurement = upload
 host = dummy.com
 ```
 
-Bugs: 
+### Bugs: 
 * Currently the probe's unit of measurement is hardcoded to "bps". This will be a problem if you want to measure "ping", which is reported in seconds.
 * For large values the overview graphs will have wrong data. You need to add something like this to your overview section of your Smokeping config:
 ```
