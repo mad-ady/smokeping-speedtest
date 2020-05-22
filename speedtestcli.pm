@@ -57,14 +57,23 @@ sub new($$$)
     unless ( $ENV{SERVER_SOFTWARE} ) {
         
         #check for dependencies
-        my $call = "$self->{properties}{binary} --version";
-        my $return = `$call 2>&1`;
-        if ($return =~ / ([0-9\.]+) /){
-            print "### parsing $self->{properties}{binary} output... OK (version $1)\n";
-            syslog("debug", "[Speedtestcli] Init: version $1");
-        } else {
-            croak "ERROR: output of '$call' does not return a meaningful version number. Is speedtest installed?\n";
+        #speedtest crashes with a core dump when calling --version from inside smokeping
+        #so, just check that the binary exists instead
+        if( -f $self->{properties}{binary} ){
+            print "### checking that $self->{properties}{binary} exists... OK\n";
+            syslog("debug", "[Speedtestcli] Init");
         }
+        else{
+            croak "ERROR: Unable to find $self->{properties}{binary}. Is speedtest installed?\n";
+        }
+        #my $call = "$self->{properties}{binary} --version";
+        #my $return = `$call 2>&1`;
+        #if ($return =~ / ([0-9\.]+) /){
+        #    print "### parsing $self->{properties}{binary} output... OK (version $1)\n";
+        #    syslog("debug", "[Speedtestcli] Init: version $1");
+        #} else {
+        #    croak "ERROR: output of '$call' does not return a meaningful version number. Is speedtest installed?\n";
+        #}
     };
 
     return $self;
