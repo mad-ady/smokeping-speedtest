@@ -137,16 +137,16 @@ sub pingone ($){
 
     my @times;
 
-    $self->do_debug("query=$query\n");
+    $self->do_debug("[Speedtestcli] query=$query\n");
     syslog("debug", "[Speedtestcli] query=$query");
 #    for (my $run = 0; $run < $self->pings($target); $run++) {
 	my $pid = open3($inh,$outh,$errh, $query);
 	while (<$outh>) {
-        $self->do_debug("output: ".$_);
+        $self->do_debug("[Speedtestcli] output: ".$_);
         syslog("debug", "[Speedtestcli] output: ".$_);
         my ($value) = /"$measurement":\{"bandwidth":([0-9]+)/;
         my $normalizedvalue = $value * 8;
-        $self->do_debug("Got value: $value, unit: 8 -> $normalizedvalue\n");
+        $self->do_debug("[Speedtestcli] Got value: $value, unit: 8 -> $normalizedvalue\n");
         syslog("debug","[Speedtestcli] Got value: $value, unit: 8 -> $normalizedvalue\n");
 
         push @times, $normalizedvalue;
@@ -167,7 +167,7 @@ sub pingone ($){
     
     @times = map {sprintf "%.10e", $_ } sort {$a <=> $b} grep {$_ ne "-"} @times;
 
-    $self->do_debug("time=@times\n");
+    $self->do_debug("[Speedtestcli] time=@times\n");
     syslog("debug", "[Speedtestcli] time=@times");
     return @times;
 }
