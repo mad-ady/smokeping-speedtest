@@ -57,9 +57,12 @@ sub new($$$)
     unless ( $ENV{SERVER_SOFTWARE} ) {
         
         #check for dependencies
-        #speedtest crashes with a core dump when calling --version from inside smokeping
-        #so, get the version from speedtest -h instead
-        my $call = "$self->{properties}{binary} -h";
+        #speedtest crashes if there is no HOME environment set, so force it to /tmp in case there is none
+        if(!defined $ENV{'HOME'}){
+            $ENV{'HOME'} = '/tmp';
+        }
+    
+        my $call = "$self->{properties}{binary} --version";
         my $return = `$call 2>&1 | grep Version`;
         if ($return =~ / ([0-9\.]+) /){
             print "### parsing $self->{properties}{binary} output... OK (version $1)\n";
