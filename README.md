@@ -37,7 +37,7 @@ Note that you may want to change speedtest's forks parameter because basically: 
 Parameters:
 * `binary` => The location of your speedtest binary.
 * `server` => The server id you want to test against (optional). If unspecified, speedtest.net will select the closest server to you. The value has to be an id reported by the command speedtest-cli --list or speedtest -L 
-* `measurement` => What output do you want graphed? Supported values are: download, upload
+* `measurement` => What output do you want graphed? Supported values are: download, upload, ping
 * `extraargs` => Extra arguments to send to speedtest
 
 ## Installation:
@@ -86,6 +86,9 @@ measurement = download
 ++ speedtest-upload
 measurement = upload
 
+++ speedtest-upload
+measurement = ping
+
 + speedtestcli
 binary = /usr/bin/speedtest
 timeout = 300
@@ -99,6 +102,9 @@ measurement = download
 
 ++ speedtestcli-upload
 measurement = upload
+
+++ speedtestcli-upload
+measurement = ping
 
 ### Add these to your Targets file.
 
